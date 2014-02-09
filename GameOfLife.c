@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+
+#define UNIVERSE_ROWS 25
+#define UNIVERSE_COLS 25
+typedef int Universe[UNIVERSE_ROWS][UNIVERSE_COLS];
+
+void evolve(Universe universe)
+{
+    Universe newUniverse;
+
+    for (int row = 0; row < UNIVERSE_ROWS; row++) {
+        for (int col = 0; col < UNIVERSE_COLS; col++) {
+            int alive = 0;
+            for (int rowAux = row-1; rowAux <= row+1; rowAux++) {
+                for (int colAux = col-1; colAux <= col+1; colAux++) {
+                    if (universe[(rowAux+UNIVERSE_ROWS) % UNIVERSE_ROWS][(colAux+UNIVERSE_COLS) % UNIVERSE_COLS]
+                            && !(row == rowAux && col == colAux)) {
+                        alive++;
+                    }
+                }
+            }
+            newUniverse[row][col] = (alive == 3 || (universe[row][col] && alive == 2));
+        }
+    }
+
+    for (int row = 0; row < UNIVERSE_ROWS; row++) {
+        for (int col = 0; col < UNIVERSE_COLS; col++) {
+            universe[row][col] = newUniverse[row][col];
+        }
+    }
+}
+
+void show(Universe universe)
+{
+    printf("\033[H");
+    printf("\033[2J");
+    for (int row = 0; row < UNIVERSE_ROWS; row++) {
+        for (int col = 0; col < UNIVERSE_COLS; col++) {
+            printf(universe[row][col] ? "\033[07m  \033[m" : "  ");
+        }
+        printf("\n");
+    }
+    fflush(stdout);
+}
+
+int main()
+{
+    Universe universe;
+
+    srand(time(NULL));
+    for (int row = 0; row < UNIVERSE_ROWS; row++) {
+        for (int col = 0; col < UNIVERSE_COLS; col++) {
+            universe[row][col] = rand() % 2;
+        }
+    }
+
+    for (;;) {
+        show(universe);
+        evolve(universe);
+        usleep(200000);
+    }
+
+    return 0;
+}
