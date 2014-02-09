@@ -7,22 +7,28 @@
 #define UNIVERSE_COLS 25
 typedef int Universe[UNIVERSE_ROWS][UNIVERSE_COLS];
 
+int numNeighbours(Universe universe, int row, int col)
+{
+    int numNeighbours = 0;
+    for (int rowAux = row-1; rowAux <= row+1; rowAux++) {
+        for (int colAux = col-1; colAux <= col+1; colAux++) {
+            if (universe[(rowAux+UNIVERSE_ROWS) % UNIVERSE_ROWS][(colAux+UNIVERSE_COLS) % UNIVERSE_COLS]
+                    && !(row == rowAux && col == colAux)) {
+                numNeighbours++;
+            }
+        }
+    }
+    return numNeighbours;
+}
+
 void evolve(Universe universe)
 {
     Universe newUniverse;
 
     for (int row = 0; row < UNIVERSE_ROWS; row++) {
         for (int col = 0; col < UNIVERSE_COLS; col++) {
-            int alive = 0;
-            for (int rowAux = row-1; rowAux <= row+1; rowAux++) {
-                for (int colAux = col-1; colAux <= col+1; colAux++) {
-                    if (universe[(rowAux+UNIVERSE_ROWS) % UNIVERSE_ROWS][(colAux+UNIVERSE_COLS) % UNIVERSE_COLS]
-                            && !(row == rowAux && col == colAux)) {
-                        alive++;
-                    }
-                }
-            }
-            newUniverse[row][col] = (alive == 3 || (universe[row][col] && alive == 2));
+            int neighbours = numNeighbours(universe, row, col);
+            newUniverse[row][col] = (neighbours == 3 || (universe[row][col] && neighbours == 2));
         }
     }
 
